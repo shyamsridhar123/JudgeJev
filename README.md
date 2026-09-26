@@ -1,8 +1,27 @@
-# JudgeJev
+<h1 align="center">
+  <img src="docs/assets/judgejev-hero.png" width="720" alt="JudgeJev — Put your AI on trial. DeepEval + Jev. A gold judicial shield against a dark futuristic city." />
+</h1>
 
-An inspectable evaluation lab for **DeepEval + Jev**. Follow an AI support answer from its input and policy through the judge's raw response, a release gate, and a drift alert.
+<p align="center">
+  <img src="docs/assets/judge-dredd.jpg" width="720" alt="Judge Dredd in his red-and-black helmet: I am the law. Prepare to be judged." />
+</p>
 
-**[Open the public demo](https://shyamsridhar123.github.io/JudgeJev/)** · [Presenter script](docs/DEMO-SCRIPT.md) · [Enterprise adoption](docs/ENTERPRISE.md) · [Evidence provenance](docs/EVIDENCE.md)
+<p align="center">
+  <strong>An inspectable evaluation lab for DeepEval + Jev.</strong><br />
+  Follow an AI support answer from its input and policy through the judge's raw response, a release gate, and a drift alert.
+</p>
+
+<p align="center">
+  <a href="https://shyamsridhar123.github.io/JudgeJev/"><img src="docs/assets/open-demo.svg" width="184" height="48" alt="Open the public demo" /></a>
+  <a href="#run-the-live-lab"><img src="docs/assets/run-locally.svg" width="176" height="48" alt="Run the live lab locally" /></a>
+  <a href="docs/DEMO-SCRIPT.md"><img src="docs/assets/demo-script.svg" width="176" height="48" alt="Read the presenter script" /></a>
+</p>
+
+<p align="center">
+  <a href="docs/ENTERPRISE.md">Enterprise adoption</a> · <a href="docs/EVIDENCE.md">Evidence provenance</a>
+</p>
+
+---
 
 The public site replays **17 real, recorded Jev evaluations** of fictional support cases. It starts with a false shipping guarantee that scored **15.1%**, alongside a correct control that scored **95.5%**. You can inspect raw requests and responses, adjust decision rules, and see why a five-pair candidate fails a release gate.
 
@@ -133,4 +152,4 @@ The implementation is pinned to DeepEval **4.2.6**, TypeSafe SDK **0.7.1**, and 
 - [Native JevEval documentation](https://deepeval.com/docs/metrics-jev-eval)
 - [TypeSafe documentation](https://docs.typesafe.ai/)
 
-MIT license for this project. The bundled Instrument Sans font retains its SIL Open Font License in `static/OFL.txt` and `demo/OFL.txt`. Provider APIs and dependencies have their own terms. JudgeJev is an independent example project, not an official DeepEval or TypeSafe product.
+MIT license for this project's code. The bundled Instrument Sans font retains its SIL Open Font License in `static/OFL.txt` and `demo/OFL.txt`. See [artwork provenance and licensing](docs/assets/ARTWORK.md) for the README images. Provider APIs and dependencies have their own terms. JudgeJev is an independent example project, not an official DeepEval or TypeSafe product.

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="176" height="48" viewBox="0 0 176 48" role="img" aria-labelledby="title">
+  <title id="title">Run the live lab locally</title>
+  <path d="M2 0.5H164L175.5 12V46L174 47.5H0.5V2Z" fill="#191b1b" stroke="#8b7350"/>
+  <path d="m21 19 5 5-5 5m10 0h7" fill="none" stroke="#e8c986" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="50" y="29" fill="#e8c986" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">Run locally</text>
+</svg>
