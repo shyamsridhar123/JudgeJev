@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="176" height="48" viewBox="0 0 176 48" role="img" aria-labelledby="title">
-  <title id="title">Read the presenter script</title>
-  <path d="M2 0.5H164L175.5 12V46L174 47.5H0.5V2Z" fill="#191b1b" stroke="#8b7350"/>
-  <path d="M20 15h10l4 4v14H20Zm9 0v5h5m-10 4h6m-6 5h6" fill="none" stroke="#e8c986" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="47" y="29" fill="#e8c986" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">Presenter script</text>
-</svg>

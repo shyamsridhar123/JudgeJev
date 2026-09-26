@@ -7,18 +7,17 @@
 </p>
 
 <p align="center">
-  <strong>An inspectable evaluation lab for DeepEval + Jev.</strong><br />
-  Follow an AI support answer from its input and policy through the judge's raw response, a release gate, and a drift alert.
+  <strong>A hands-on learning lab for DeepEval + Jev.</strong><br />
+  Try an evaluation, inspect the judge's raw response, and experiment with release gates and drift alerts.
 </p>
 
 <p align="center">
   <a href="https://shyamsridhar123.github.io/JudgeJev/"><img src="docs/assets/open-demo.svg" width="184" height="48" alt="Open the public demo" /></a>
   <a href="#run-the-live-lab"><img src="docs/assets/run-locally.svg" width="176" height="48" alt="Run the live lab locally" /></a>
-  <a href="docs/DEMO-SCRIPT.md"><img src="docs/assets/demo-script.svg" width="176" height="48" alt="Read the presenter script" /></a>
 </p>
 
 <p align="center">
-  <a href="docs/ENTERPRISE.md">Enterprise adoption</a> · <a href="docs/EVIDENCE.md">Evidence provenance</a>
+  <a href="AGENTS.md">Learn with your AI</a> · <a href="docs/ENTERPRISE.md">Adapt to your workload</a> · <a href="docs/EVIDENCE.md">Evidence provenance</a>
 </p>
 
 ---
@@ -128,6 +127,7 @@ The repository's **Verify and deploy Pages** workflow tests the app and evidence
 
 ```text
 demo/                  Public site and curated recorded evidence
+AGENTS.md              AI guide to hands-on learning and team presentations
 static/                Live monitor and evaluation-lab frontend
 app.py, lab.py         Local HTTP APIs, event streams, run orchestration
 providers.py           Configurable generator and audited native TypeSafe adapter

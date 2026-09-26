@@ -6,7 +6,7 @@ The README pairs the maintainer-supplied Judge Dredd image with a charcoal, scar
 
 `judge-dredd.jpg` is an unchanged copy of the supplied image at https://i.imgflip.com/1j071a.jpg. Its SHA-256 is `3b2faf5b23d33b4679c9d3c40c7f63290a4eb280ee26b3212555abd24a556f82`. The third-party film image and meme are not covered by this repository's MIT license. JudgeJev is not affiliated with the Judge Dredd franchise.
 
-The three SVG navigation images are authored, self-contained vectors, with descriptive text alternatives in the README. None of the SVGs contains scripts, remote resources, analytics, or credentials.
+The two SVG navigation images are authored, self-contained vectors, with descriptive text alternatives in the README. Neither SVG contains scripts, remote resources, analytics, or credentials.
 
 The repository's MIT license applies to its code and authored SVG navigation images. The generated banner and third-party Dredd image are excluded from that license; no rights in the Judge Dredd franchise are granted.
 
