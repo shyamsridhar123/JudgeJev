@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>JudgeJev · Live evaluation</title>
+  <link rel="icon" type="image/svg+xml" href="/static/mark.svg">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to metrics</a>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="JudgeJev home"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 17h5l3-11 6 17 3-10h5"/></svg><strong>JudgeJev</strong><span>Live evaluation</span></a>
+    <nav aria-label="Page"><a href="/lab">Evaluation lab</a><a href="#verification">Verification</a><a href="#traces">Traces</a><a class="button quiet compact" href="/api/export" download>Export evidence <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></a></nav>
+  </header>
+  <main id="main">
+    <div class="heading-row"><div><h1>Support assistant</h1><p class="muted">Synthetic support tickets. Real Model answers and Jev evaluations.</p></div><div class="stream-status"><span id="stream" class="status connecting"><i></i>Connecting</span><span id="freshness" class="muted">Waiting for the local server</span></div></div>
+    <div id="connection-line" class="connection-line" aria-live="polite">Checking model connections…</div>
+    <div id="connection-notice" class="notice connection-warning" role="status" hidden></div>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <form id="connect-form" class="connect-form" hidden autocomplete="off"><div><strong>Connect Jev</strong><p>The key stays in the local server’s memory.</p></div><label class="sr-only" for="api-key">TypeSafe API key</label><input id="api-key" type="password" placeholder="TypeSafe API key" autocomplete="off" spellcheck="false" maxlength="4096" required><button type="submit">Connect and verify</button></form>
+
+    <section class="metric-strip" aria-label="Current evaluation metrics">
+      <div class="metric"><h2>Mean quality</h2><div class="metric-value" id="mean-quality">—</div><div id="quality-comparison" class="metric-note">No evaluations yet</div></div>
+      <div class="metric"><h2>Pass rate <span class="muted">≥80%</span></h2><div class="metric-value" id="pass-rate">—</div><div id="sample-count" class="metric-note">0 scored requests</div></div>
+      <div class="metric"><h2>Model latency <span class="muted">p50</span></h2><div class="metric-value" id="generator-latency">—</div><div id="generator-p95" class="metric-note">p95 —</div></div>
+      <div class="metric"><h2>Jev evaluation <span class="muted">p50</span></h2><div class="metric-value" id="jev-latency">—</div><div id="jev-p95" class="metric-note">p95 —</div></div>
+    </section>
+    <div class="scope-line"><span id="metric-scope">Metrics await completed calls</span><span id="request-totals">No traffic</span></div>
+    <div class="answer-outcomes"><div id="answer-failures" aria-live="polite">Loading answer verdicts…</div><button id="show-below" class="quiet compact" type="button">Show below-threshold answers</button></div>
+
+    <div class="workspace">
+      <div class="analysis-column">
+        <section class="panel timeline-panel" aria-labelledby="timeline-title">
+          <div class="section-head"><div><h2 id="timeline-title">Quality over requests</h2><p>Each point opens its complete trace.</p></div><div class="legend"><span><i class="reference-dot"></i>Reference</span><span><i class="current-dot"></i>Current policy</span><span><i class="fault-dot"></i>Injected fault</span></div></div>
+          <div id="timeline" class="timeline"><p class="chart-empty">Run a reference batch to start measuring quality.</p></div>
+          <div class="chart-footer"><span id="timeline-scope">Request sequence · score from 0 to 100%</span><span class="muted">Dashed: frozen reference mean / alert threshold</span></div>
+        </section>
+        <section class="panel comparison-panel" aria-labelledby="comparison-title">
+          <div class="section-head"><div><h2 id="comparison-title">Where quality changed</h2><p>Same rubric and authoritative policy for every evaluation.</p></div><div class="legend"><span><i class="reference-dot"></i>Reference</span><span><i class="current-dot"></i>Latest window</span></div></div>
+          <div class="comparison-grid"><div><div id="metric-bars" class="metric-bars"></div><p class="method-note">Quality = (2 × groundedness + relevance + 2 × policy compliance) / 5.</p></div><div class="segments-wrap"><table class="segments"><thead><tr><th>Ticket category</th><th>Ref. / now</th><th>Quality Δ</th></tr></thead><tbody id="segments"></tbody></table></div></div>
+        </section>
+      </div>
+
+      <aside class="control-column" aria-label="Drift and traffic controls">
+        <section class="panel drift-panel"><div class="section-head"><h2>Drift signals</h2><span id="window-count" class="tiny muted">0 / 20</span></div>
+          <div class="signal"><div class="signal-title"><h3>Quality change</h3><span id="quality-status" class="badge">No reference</span></div><div class="signal-number" id="quality-delta">—<span> pp</span></div><p id="quality-explanation">Freeze a reference to compare new answers.</p><div class="thresholds"><span>Watch −8 pp</span><span>Alert −15 pp</span></div></div>
+          <div class="signal"><div class="signal-title"><h3>Ticket mix</h3><span id="mix-status" class="badge">No reference</span></div><div class="signal-number" id="mix-value">—<span> / 1</span></div><p>Category distribution change, measured with Jensen–Shannon divergence.</p><div class="thresholds"><span>Watch 0.10</span><span>Alert 0.20</span></div></div>
+          <p class="sampling-note" id="sampling-note">Both cohorts need 20 completed evaluations before a drift alert is issued.</p>
+        </section>
+
+        <section class="panel traffic-panel"><div class="section-head"><h2>Run a change</h2><span id="traffic-state" class="tiny muted">Idle</span></div>
+          <form id="traffic-form"><label for="scenario">Knowledge base</label><select id="scenario"><option value="healthy">Current policy</option><option value="stale_policy">Outdated policy</option><option value="missing_context">Missing context</option></select>
+            <label for="mix">Ticket mix</label><select id="mix"><option value="balanced">Balanced · five categories</option><option value="refund_surge">Refund surge · returns & billing</option><option value="harder_questions">Harder questions</option></select>
+            <div class="form-row"><div><label for="count">Requests</label><select id="count"><option>20</option><option>40</option><option>60</option><option>100</option></select></div><div><label for="cadence">Batch pause</label><select id="cadence"><option value="250">250 ms</option><option value="1000">1 second</option><option value="5000">5 seconds</option></select></div></div>
+            <button id="start-traffic" class="full" type="submit" disabled>Run 20 requests <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></button>
+          </form>
+          <div class="run-actions"><button id="make-reference" class="quiet" type="button" disabled>Record reference · 20</button><button id="stop" class="quiet danger" type="button" disabled>Stop</button></div>
+          <div id="run-progress" hidden><div class="progress-label"><span id="run-phase"></span><span id="progress-count"></span></div><progress id="progress" value="0" max="60"></progress><p class="tiny muted">Stop lets in-flight calls finish. Two requests run at a time.</p></div>
+          <p class="tiny muted">The policy changes Model’s context. Jev scores the actual answer: a safe refusal can pass even with bad or missing context. Selecting a policy leaves saved scores unchanged.</p>
+        </section>
+      </aside>
+    </div>
+
+    <section id="verification" class="panel verification-panel" aria-labelledby="verification-title">
+      <div class="section-head"><div><h2 id="verification-title">Does the monitor catch a real change?</h2><p>20 matched tickets across reference, faulty context, and recovery.</p></div><button id="verify" class="quiet" type="button" disabled>Run verification · 60 requests</button></div>
+      <div class="proof-heading"><span id="proof-status" class="badge">Not run</span><span id="proof-description" class="muted">Reference → wrong policy → restored policy</span></div>
+      <div class="table-scroll"><table class="proof-table"><thead><tr><th>Stage</th><th>Model context</th><th>Evaluated</th><th>Answer verdicts</th><th>Mean quality</th><th>Change vs. reference</th><th>Measured signal</th></tr></thead><tbody id="proof-stages"><tr><td colspan="7" class="empty-cell">No completed verification stages yet.</td></tr></tbody></table></div>
+      <div id="judge-controls" class="judge-controls">Jev control evidence is loading.</div>
+      <div id="evidence-audit" class="evidence-audit" hidden></div>
+    </section>
+
+    <section id="traces" class="panel traces-panel" aria-labelledby="traces-title">
+      <div class="section-head"><div><h2 id="traces-title">Request traces <span id="trace-count" class="muted"></span></h2><p>Inspect the answer, exact evaluation input, provider response, and score calculation.</p></div><div class="trace-filters"><label class="sr-only" for="phase-filter">Filter traces by phase</label><select id="phase-filter"><option value="all">All phases</option><option value="baseline">Reference stage</option><option value="fault">Verification fault stage</option><option value="recovery">Recovery stage</option><option value="traffic">Traffic runs</option></select><label class="sr-only" for="scenario-filter">Filter traces by context</label><select id="scenario-filter"><option value="all">All contexts</option><option value="healthy">Current policy</option><option value="stale_policy">Outdated policy</option><option value="missing_context">Missing context</option></select><label class="sr-only" for="status-filter">Filter traces by result</label><select id="status-filter"><option value="all">All results</option><option value="passed">Passed</option><option value="below">Below threshold</option><option value="error">Call errors</option></select></div></div>
+      <div class="table-scroll"><table class="traces"><thead><tr><th>Request</th><th>Customer question</th><th>Context</th><th>Quality</th><th>Model</th><th>Jev</th><th>Result</th><th><span class="sr-only">Inspect</span></th></tr></thead><tbody id="trace-rows"></tbody></table></div>
+      <div class="trace-footer"><span id="trace-scope" class="muted">Latest 240 requests. Export includes the full history.</span><button id="toggle-custom" class="text-button" type="button" aria-expanded="false" aria-controls="custom-form">Try your own ticket <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></button></div>
+      <form id="custom-form" class="custom-form" hidden><label for="custom-text">Customer question</label><textarea id="custom-text" rows="3" minlength="5" maxlength="3000" required placeholder="Ask a question about returns, shipping, billing, accounts, or warranty…"></textarea><div class="custom-controls"><label for="custom-category">Category</label><select id="custom-category"><option>Custom</option><option>Returns</option><option>Shipping</option><option>Billing</option><option>Account</option><option>Warranty</option></select><label for="custom-scenario">Knowledge base</label><select id="custom-scenario"><option value="healthy">Current policy</option><option value="stale_policy">Outdated policy</option><option value="missing_context">Missing context</option></select><button id="send-custom" type="submit" disabled>Send to Model & evaluate</button></div></form>
+    </section>
+
+    <details class="events-panel"><summary>Operational event log <span id="event-count" class="muted"></span></summary><div id="events"></div></details>
+    <footer class="page-footer"><span id="versions">DeepEval · JevEval · TypeSafe</span><details><summary>How to read these signals</summary><p>Quality is a model-judged score, not human-certified accuracy. The frozen reference is compared with the most recent 20 completed requests in request order. Watch and alert thresholds are explicit operational rules, not statistical significance tests. Failed calls remain in the trace log and are excluded from score means. Ticket mix only measures the five labeled categories (plus Custom); it does not detect every kind of semantic drift. A fixed set of synthetic tickets demonstrates fault detection, not general production performance. The full ledger, rubric, reference membership, provider payloads, and timestamps are available in Export evidence.</p></details></footer>
+  </main>
+  <aside id="inspector" class="inspector" aria-labelledby="inspector-title" hidden><div class="inspector-header"><div><h2 id="inspector-title">Request trace</h2><span id="inspector-id" class="tiny muted"></span></div><button id="close-inspector" class="icon-button" type="button" aria-label="Close request trace"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><div id="inspector-body"></div></aside>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

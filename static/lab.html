@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+  <title>JudgeJev · Evaluation lab</title>
+  <link rel="icon" type="image/svg+xml" href="/static/mark.svg">
+  <link rel="stylesheet" href="/static/app.css"><link rel="stylesheet" href="/static/lab.css">
+  <script src="/static/lab.js" defer></script>
+</head>
+<body class="lab-page">
+  <a class="skip-link" href="#lab-main">Skip to evaluation lab</a>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Model live monitor"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 17h5l3-11 6 17 3-10h5"/></svg><strong>JudgeJev</strong><span>Evaluation lab</span></a>
+    <nav aria-label="Application"><a href="/">Live monitor</a><button id="verify-lab" class="quiet compact" type="button">Verify evidence</button><a class="button quiet compact" href="/api/lab/export" download>Export lab</a></nav>
+  </header>
+  <main id="lab-main">
+    <div class="lab-title"><div><h1>Understand every score.</h1><p>Experiment with a support assistant, from one answer to a release decision.</p></div><span id="lab-connection" class="connection-copy">Checking the existing connections…</span></div>
+    <div class="lab-nav" role="tablist" aria-label="Evaluation concepts">
+      <button type="button" role="tab" id="tab-workbench" aria-selected="true" aria-controls="view-workbench" data-view="workbench"><span>01</span> Test case & Jev</button>
+      <button type="button" role="tab" id="tab-experiments" aria-selected="false" aria-controls="view-experiments" data-view="experiments" tabindex="-1"><span>02</span> Dataset & regression</button>
+      <button type="button" role="tab" id="tab-drift" aria-selected="false" aria-controls="view-drift" data-view="drift" tabindex="-1"><span>03</span> Drift replay</button>
+      <button type="button" role="tab" id="tab-guide" aria-selected="false" aria-controls="view-guide" data-view="guide" tabindex="-1"><span>04</span> Concept guide</button>
+    </div>
+    <div class="lab-status-line"><span id="live-lab" class="muted">Connecting to the local event stream</span><span id="lab-counts">No lab observations loaded</span></div>
+    <p id="lab-answer-counts" class="lab-answer-counts" aria-live="polite"></p>
+    <div id="lab-offline" class="notice connection-warning" role="status" hidden></div>
+    <div id="lab-notice" class="notice" role="status" hidden></div>
+    <div id="lab-progress" class="lab-progress" aria-live="polite" hidden><div><strong id="lab-phase"></strong><span id="lab-progress-copy"></span></div><progress id="lab-progress-bar" max="1" value="0"></progress><button id="stop-lab" class="quiet compact" type="button" disabled>Stop after this call</button></div>
+
+    <section id="view-workbench" role="tabpanel" aria-labelledby="tab-workbench">
+      <div class="workbench-grid">
+        <div class="editor-column">
+          <section class="panel case-editor">
+            <div class="section-head"><div><h2>The test case</h2><p>A question, an actual answer, and the evidence your metric can see.</p></div><span class="native-tag">LLMTestCase</span></div>
+            <div class="editor-body">
+              <label for="ticket-select">Synthetic support ticket</label><select id="ticket-select"></select>
+              <label for="case-input">input <span>The customer’s question</span></label><textarea id="case-input" rows="2" maxlength="3000"></textarea>
+              <div class="generation-controls"><label for="generation-scenario">Model knowledge base</label><select id="generation-scenario"><option value="healthy">Current policy</option><option value="stale_policy">Outdated policy</option><option value="missing_context">Missing context</option></select><button id="generate-case" class="quiet" type="button" disabled>Generate answer</button></div>
+              <p class="help">This choice changes the next generation’s context. Jev judges the actual answer; a safe refusal can pass even with bad or missing context.</p>
+              <label for="case-output">actual_output <span>Generate an answer or write your own</span></label><textarea id="case-output" rows="4" maxlength="10000" placeholder="The actual answer to evaluate appears here."></textarea>
+              <div class="example-actions"><span id="answer-provenance">No answer yet</span><button type="button" class="text-button" id="good-example">Correct example</button><button type="button" class="text-button" id="bad-example">Policy error</button></div>
+              <p class="help">Judge check: choose ticket-02 and Support quality, load Correct example or Policy error, then click Evaluate with Jev. The example buttons only load fixed text.</p>
+              <details class="field-details" id="reference-fields"><summary>Reference fields & evidence</summary>
+                <label for="case-expected">expected_output <span>A reference answer or required behavior</span></label><textarea id="case-expected" rows="3" maxlength="6000"></textarea>
+                <label for="case-context">context <span>The authoritative, current policy</span></label><textarea id="case-context" rows="5" maxlength="12000"></textarea>
+                <label for="case-retrieval">retrieval_context <span>What the model received</span></label><textarea id="case-retrieval" rows="5" maxlength="12000"></textarea>
+                <p class="help">A retrieved document can be outdated. A faithful answer can still violate the correct policy.</p>
+              </details>
+              <details class="field-details"><summary>Reuse an actual monitor answer</summary><label for="monitor-trace">Saved Model trace</label><select id="monitor-trace"></select><button id="import-trace" class="quiet compact" type="button">Load trace into test case</button><p class="help">This imports saved text. Evaluate with Jev makes a new judge call.</p></details>
+            </div>
+          </section>
+          <section class="panel rubric-editor">
+            <div class="section-head"><div><h2>The evaluator</h2><p>Define the questions. Jev returns typed probabilities.</p></div><span class="native-tag">JevEval</span></div>
+            <div class="editor-body">
+              <label for="rubric-preset">Rubric</label><select id="rubric-preset"></select><p class="help" id="rubric-description"></p>
+              <fieldset class="field-selection"><legend>evaluation_params · fields sent to Jev</legend><div id="evaluation-fields"></div><p class="help">Populating a test-case field does not automatically send it to the evaluator.</p></fieldset>
+              <div id="question-editor"></div>
+              <div class="add-criterion"><label class="sr-only" for="new-question-type">New question type</label><select id="new-question-type"><option value="noul">Noul</option><option value="score">Score</option><option value="choice">Choice</option></select><button type="button" class="quiet compact" id="add-question">Add criterion</button></div>
+              <div class="metric-settings"><label for="eval-threshold">Pass threshold <input id="eval-threshold" type="number" min="0" max="1" step=".05" value=".8"></label><label class="check-label"><input id="eval-strict" type="checkbox"> Native strict mode</label></div>
+              <p class="help" id="strict-help">A pass means the weighted score meets the threshold.</p>
+              <button id="evaluate-case" class="full" type="button" disabled>Evaluate with Jev</button><p class="action-note">One fresh TypeSafe call through native DeepEval. Lab results stay outside the live monitoring cohort.</p>
+            </div>
+          </section>
+        </div>
+        <div class="result-column">
+          <section class="panel result-panel"><div class="section-head"><div><h2>The result</h2><p id="result-caption">A real response, with the calculation exposed.</p></div><span id="result-source" class="native-tag">Awaiting evaluation</span></div><div id="result-draft-notice" class="notice connection-warning draft-notice" role="status" hidden>Draft changed — the result below is from the previous saved call. Click Evaluate with Jev to score the current answer and rubric.</div><div id="case-result" class="result-content"><div class="empty-state"><svg viewBox="0 0 80 48" aria-hidden="true"><path d="M3 35h16l8-20 13 25 11-31 9 20h17"/></svg><h3>Start with an answer.</h3><p>Generate answer, then evaluate with Jev. The returned probability distributions, native score, and exact request will appear here.</p><p class="help">Try “Outdated policy” with the RAG diagnosis rubric to separate faithfulness from correctness.</p></div></div></section>
+          <section id="reweight-panel" class="panel" hidden><div class="section-head"><div><h2>Explore the decision rule</h2><p>Recalculate the saved result. No provider call.</p></div><span class="native-tag">Saved evidence</span></div><div class="editor-body"><div id="replay-weights"></div><div class="metric-settings"><label for="replay-threshold">Threshold <input id="replay-threshold" type="range" min="0" max="1" step=".01" value=".8"><output id="replay-threshold-value">80%</output></label><label class="check-label"><input type="checkbox" id="replay-strict"> Strict mode</label></div><div id="replay-result" aria-live="polite"></div><p class="help">Weights change aggregation; thresholds change the verdict. Neither changes Jev’s saved probabilities. Strict mode forces a threshold of 1 and uses native per-question rules.</p></div></section>
+          <section class="panel history-panel"><div class="section-head"><div><h2>Workbench history</h2><p>Every generated answer and evaluation is retained.</p></div></div><div id="case-history" class="history-list">No lab calls yet.</div></section>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-experiments" role="tabpanel" aria-labelledby="tab-experiments" hidden>
+      <div class="experiment-layout">
+        <section class="panel experiment-setup"><div class="section-head"><div><h2>Can this change ship?</h2><p>Run both variants on the same fixed synthetic dataset.</p></div><span class="native-tag">EvaluationDataset → evaluate()</span></div>
+          <div class="editor-body"><div class="variant-settings"><div><span class="variant-label reference">A · Reference</span><strong>Current policy</strong><p>Fresh Model answers</p></div><div><label class="variant-label current" for="candidate-scenario">B · Candidate</label><select id="candidate-scenario"><option value="stale_policy">Outdated policy</option><option value="healthy">Current policy</option><option value="missing_context">Missing context</option></select><p>Fresh Model answers</p></div></div>
+            <div class="experiment-fields"><label for="dataset-count">Cases per variant<select id="dataset-count"><option value="5">5 · one per category</option><option value="10">10 · common + harder</option><option value="20">20 · full fixture set</option></select></label><label for="dataset-rubric">Shared rubric<select id="dataset-rubric"></select></label><label for="dataset-threshold">Per-case pass threshold<input id="dataset-threshold" type="number" min="0" max="1" step=".05" value=".8"></label></div>
+            <details class="field-details"><summary>App-defined release gate</summary><div class="experiment-fields"><label for="gate-pass">Minimum candidate pass rate<input id="gate-pass" type="number" min="0" max="1" step=".05" value=".9"></label><label for="gate-drop">Maximum mean score drop<input id="gate-drop" type="number" min="0" max="1" step=".01" value=".05"></label></div><p class="help">All pairs must be complete and applicable. These are explicit operational rules, separate from DeepEval’s native test results.</p></details>
+            <button id="run-dataset" class="full" type="button" disabled>Run dataset comparison</button><p class="action-note" id="dataset-cost">10 fresh Model calls + 10 fresh Jev evaluations. No cache.</p>
+            <details class="field-details" id="goldens-detail"><summary>Inspect the synthetic goldens</summary><div id="goldens-list"></div><p class="help">A Golden describes an input and its expected behavior. Executing the application supplies actual_output for an LLMTestCase.</p></details>
+          </div>
+        </section>
+        <section class="panel experiment-results"><div class="section-head"><div><h2>Paired results</h2><p id="dataset-result-caption">Compare each answer, then assess the whole change.</p></div><label class="sr-only" for="dataset-history">Experiment history</label><select id="dataset-history"><option value="">No experiments yet</option></select></div><div id="dataset-results" class="result-content"><div class="empty-state"><h3>A test suite for your assistant.</h3><p>The same ticket IDs, policy reference, metric, and threshold are used for A and B. The candidate’s knowledge base is the controlled change.</p><p class="help">Dataset experiments do not replace the live monitor’s frozen reference.</p></div></div></section>
+      </div>
+    </section>
+
+    <section id="view-drift" role="tabpanel" aria-labelledby="tab-drift" hidden>
+      <div class="drift-intro"><div><h2>When would the alert fire?</h2><p>Replay saved, real Model + Jev requests and see how the window changes detection.</p></div><a href="/" class="button quiet">Run fresh traffic in the live monitor</a></div>
+      <div class="drift-lab-layout"><section class="panel drift-chart-panel"><div class="section-head"><div><h3>Scores and rolling mean</h3><p id="drift-source">Loading saved evidence…</p></div><span class="native-tag">Replay · no API calls</span></div><div id="replay-chart" class="replay-chart"></div><div class="timeline-controls"><button id="play-drift" class="quiet compact" type="button">Play replay</button><label for="drift-cutoff">Completed requests <output id="drift-cutoff-label"></output></label><input type="range" id="drift-cutoff" min="0" max="40" value="40" step="1"></div><div class="chart-key"><span class="reference">Frozen reference</span><span class="current">Rolling mean</span><span class="fault">Outdated-policy answer</span><span>Dashed line: alert boundary</span></div></section>
+        <section class="panel drift-controls"><div class="section-head"><h3>Replay settings</h3></div><div class="editor-body"><label for="drift-evidence">Saved source</label><select id="drift-evidence"><option value="proof">Latest fault & recovery proof</option><option value="traffic">All traffic after the frozen reference</option></select><label for="drift-window">Current window<select id="drift-window"><option value="5">5 requests</option><option value="10">10 requests</option><option value="20" selected>20 requests</option><option value="40">40 requests</option></select></label><label for="drift-watch">Watch: mean drop <output id="watch-value">8 pp</output></label><input id="drift-watch" type="range" min=".01" max=".3" step=".01" value=".08"><label for="drift-alert">Alert: mean drop <output id="alert-value">15 pp</output></label><input id="drift-alert" type="range" min=".01" max=".5" step=".01" value=".15"><label for="drift-pass">Per-answer pass threshold <output id="drift-pass-value">80%</output></label><input id="drift-pass" type="range" min="0" max="1" step=".01" value=".8"><p class="help">The minimum current sample count equals the chosen window here. The live monitor still uses its fixed 20-request rule.</p></div></section></div>
+      <div id="drift-results" class="drift-readout"></div><details class="panel replay-membership"><summary>Inspect exact reference & current membership</summary><pre id="drift-membership"></pre></details>
+      <div class="learning-note"><strong>A monitoring signal needs interpretation.</strong><p>Quality compares Jev scores. Ticket mix compares category proportions using Jensen–Shannon divergence. A change in mix can happen with stable quality. Neither signal proves a cause; this replay does not calculate statistical significance.</p></div>
+    </section>
+
+    <section id="view-guide" role="tabpanel" aria-labelledby="tab-guide" hidden>
+      <div class="guide-layout"><nav class="guide-index" aria-label="Concepts"><h2>Follow the evaluation</h2><button type="button" data-topic="architecture" class="selected">Who does what?</button><button type="button" data-topic="testcase">Test cases & evidence</button><button type="button" data-topic="primitives">Noul, Score & Choice</button><button type="button" data-topic="strict">Weights, thresholds & strict mode</button><button type="button" data-topic="rag">RAG failure diagnosis</button><button type="button" data-topic="dataset">Datasets & regression gates</button><button type="button" data-topic="confidence">Confidence & calibration</button><button type="button" data-topic="drift">Offline evaluation vs. monitoring</button><button type="button" data-topic="proof">How to verify it works</button></nav><article id="guide-content" class="panel guide-content"></article></div>
+    </section>
+    <footer class="lab-footer"><span id="lab-versions">Pinned native DeepEval and TypeSafe SDK</span><span>Synthetic support scenarios · actual provider responses · local evidence journal</span></footer>
+  </main>
+  <dialog id="lab-inspector" class="lab-dialog"><div class="dialog-header"><div><h2 id="dialog-title">Evidence</h2><span id="dialog-id" class="muted tiny"></span></div><button type="button" class="quiet compact" id="close-lab-inspector">Close</button></div><div id="dialog-content"></div></dialog>
+</body></html>

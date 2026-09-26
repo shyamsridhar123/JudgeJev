@@ -1,0 +1,7 @@
+deepeval==4.2.6
+typesafe-sdk==0.7.1
+fastapi==0.141.1
+uvicorn==0.53.0
+httpx==0.28.1
+python-dotenv==1.2.3
+pytest==9.1.1

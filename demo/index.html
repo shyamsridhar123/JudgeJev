@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An inspectable DeepEval + Jev evaluation lab. Explore real recorded judgments, typed metrics, regression gates, and drift; run the full live lab with your own providers.">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>JudgeJev — inspect every judgment</title>
+  <link rel="icon" href="mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" type="module"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the lab</a>
+  <header class="masthead">
+    <a class="brand" href="#workbench" aria-label="JudgeJev home"><span class="brand-mark" aria-hidden="true">J<span>J</span></span><strong>JudgeJev</strong><span class="brand-sub">OPEN EVALUATION LAB</span></a>
+    <div class="masthead-links"><span class="recorded-label"><span></span>Recorded evidence</span><a class="repo-link" href="https://github.com/shyamsridhar123/JudgeJev" target="_blank" rel="noopener">Source on GitHub ↗</a></div>
+  </header>
+  <main id="main">
+    <section class="intro">
+      <div><p class="eyebrow">DEEPEVAL × JEV</p><h1>A passing score<br>needs a good explanation.</h1><p class="intro-copy">Put an AI support assistant to the test. Inspect the judgment, catch a regression, and see when a drift alert fires.</p></div>
+      <aside class="evidence-card"><span class="eyebrow">THE EVIDENCE, UP FRONT</span><div class="evidence-count"><strong id="record-count">—</strong><span>real Jev evaluations<br>fictional support cases</span></div><p id="verification-status" role="status">Checking the evidence bundle…</p><a href="#adopt">Run fresh evaluations yourself <span>↗</span></a></aside>
+    </section>
+    <div class="mode-note"><span class="tiny-tag">PUBLIC DEMO</span><p>This site replays saved provider results. Controls recalculate decisions; they do not call a model. The live Python app is included in the repository.</p><a href="evidence.json" download="judgejev-evidence.json">Download evidence ↓</a></div>
+    <nav class="tabs" aria-label="Lab sections">
+      <a href="#workbench" data-tab="workbench" aria-current="page"><span>01</span> Inspect a judgment</a>
+      <a href="#compare" data-tab="compare"><span>02</span> Gate a release</a>
+      <a href="#drift" data-tab="drift"><span>03</span> Explore drift</a>
+      <a href="#adopt" data-tab="adopt"><span>04</span> Run it live</a>
+    </nav>
+    <div id="fatal" class="callout danger" hidden role="alert"></div>
+    <section id="workbench" class="view" aria-labelledby="workbench-title">
+      <div class="section-heading"><div><p class="eyebrow">FROM ANSWER TO VERDICT</p><h2 id="workbench-title">What did the judge actually see?</h2></div><label class="case-select">Recorded example<select id="case-select" disabled></select></label></div>
+      <div class="example-shortcuts" aria-label="Example shortcuts"><button data-case="shipping-bad" class="selected">False guarantee</button><button data-case="shipping-good">Correct answer</button><button data-case="primitives-review">Three primitives</button><button data-case="not-applicable">Not applicable</button><button data-case="rag-stale">RAG diagnosis</button></div>
+      <div class="workbench-grid">
+        <div class="case-column">
+          <article class="panel case-panel"><div class="panel-heading"><h3>The test case</h3><span class="code-tag">LLMTestCase</span></div><div id="case-content" class="panel-body"><p class="muted">Loading recorded case…</p></div></article>
+          <article class="panel"><div class="panel-heading"><h3>The decision rule</h3><span class="code-tag">Local replay</span></div><div class="panel-body"><p class="muted small">These controls reuse the selected call’s probabilities. Changing an answer or rubric requires a fresh Jev call in the live lab.</p><label class="slider-label" for="threshold">Pass threshold <output id="threshold-output">80%</output></label><input id="threshold" type="range" min="0" max="1" step=".01" value=".8"><label class="check"><input type="checkbox" id="strict">Use native strict mode <span>all applicable criteria</span></label><div id="weights"></div><button id="reset-rule" class="text-button">Reset to recorded configuration ↺</button><div id="rule-explanation" class="small muted"></div></div></article>
+        </div>
+        <div class="result-column">
+          <article id="verdict-panel" class="verdict-panel"><div id="verdict"></div></article>
+          <article class="panel"><div class="panel-heading"><h3>Inside the judgment</h3><span class="code-tag">JevEval</span></div><div id="breakdown" class="panel-body"></div></article>
+          <div id="case-insight" class="insight"></div>
+        </div>
+      </div>
+      <article class="panel evidence-panel"><div class="panel-heading"><div><h3>Follow the evidence</h3><p class="small muted">Exact selected fields, raw TypeSafe payload, and a reproducible native metric.</p></div><button id="verify-button" class="secondary">Recheck all recorded scores</button></div><div id="raw-evidence" class="panel-body"></div></article>
+    </section>
+    <section id="compare" class="view" hidden aria-labelledby="compare-title">
+      <div class="section-heading"><div><p class="eyebrow">SAME CASES. SAME JUDGE. DIFFERENT POLICY.</p><h2 id="compare-title">Would you release this change?</h2><p class="muted">One recorded, five-pair DeepEval dataset run. The generator received current or obsolete policy; Jev always saw the authoritative reference.</p></div><span class="tiny-tag">APP-DEFINED GATE</span></div>
+      <div class="comparison-top"><div id="comparison-stats" class="stats-grid"></div><aside class="panel gate-controls"><div class="panel-heading"><h3>Release conditions</h3></div><div class="panel-body"><label class="slider-label" for="gate-pass">Minimum candidate pass rate <output id="gate-pass-output">90%</output></label><input type="range" id="gate-pass" min="0" max="1" step=".05" value=".9"><label class="slider-label" for="gate-drop">Maximum mean drop <output id="gate-drop-output">5 pp</output></label><input type="range" id="gate-drop" min="0" max="1" step=".01" value=".05"><label class="check"><input type="checkbox" id="omit-pair">Simulate one missing candidate</label><p class="small muted">An incomplete or inapplicable pair blocks eligibility, even with permissive thresholds.</p></div></aside></div>
+      <div id="release-gate" class="gate-banner" role="status"></div>
+      <article class="panel"><div class="panel-heading"><h3>Every pair, visible</h3><span class="small muted">Per-case pass threshold: 80%</span></div><div class="table-wrap"><table><thead><tr><th>Case</th><th>Reference · current policy</th><th>Candidate · obsolete policy</th><th>Change</th><th>Candidate verdict</th><th><span class="sr-only">Inspect</span></th></tr></thead><tbody id="pair-table"></tbody></table></div></article>
+      <p class="footnote">This small synthetic set teaches regression testing. It does not estimate production accuracy, isolate model drift, or provide a statistical confidence interval.</p>
+    </section>
+    <section id="drift" class="view" hidden aria-labelledby="drift-title">
+      <div class="section-heading"><div><p class="eyebrow">MAKE THE ALERT RULE VISIBLE</p><h2 id="drift-title">When does a change become a signal?</h2><p class="muted">Replay real recorded scores in a constructed sequence. Explore warm-up, detection, and recovery.</p></div><span class="tiny-tag">RECONSTRUCTED PLAYBACK</span></div>
+      <div class="playback-controls"><label>Scenario<select id="drift-scenario"><option value="fault">Policy fault → reference replay</option><option value="mix">Ticket mix shift</option></select></label><label>Rolling window<select id="drift-window"><option value="1">1 event</option><option value="3">3 events</option><option value="5" selected>5 events</option></select></label><button id="play-drift" class="primary">Play sequence</button><button id="reset-drift" class="secondary">Reset</button><span id="playback-position" class="small muted">Event 0 / 10</span></div>
+      <label class="sr-only" for="drift-position">Playback position</label><input type="range" id="drift-position" min="0" max="10" step="1" value="0">
+      <div id="drift-stats" class="stats-grid drift-stats" aria-live="polite"></div>
+      <article class="panel chart-panel"><div class="panel-heading"><div><h3>Rolling mean quality</h3><p class="small muted">Quality is a Jev judgment, not human-measured accuracy.</p></div><div class="legend"><span><i class="teal"></i>Rolling mean</span><span><i class="gray"></i>Frozen reference</span><span><i class="red"></i>Alert boundary</span></div></div><div id="drift-chart"></div><div class="chart-caption" id="drift-caption"></div></article>
+      <div class="drift-bottom"><article class="panel"><div class="panel-heading"><h3>What entered the current window?</h3></div><div id="window-members" class="panel-body"></div></article><article class="panel"><div class="panel-heading"><h3>The operational rules</h3><span class="code-tag">Application logic</span></div><div class="panel-body rule-list"><p><strong>Quality</strong> Reference mean minus rolling mean. Watch at 8 percentage points; alert at 15.</p><p><strong>Category mix</strong> Base-2 Jensen–Shannon divergence. Watch at 0.10; alert at 0.20.</p><p><strong>Warm-up</strong> Five reference records, then a complete selected window. No early pass.</p><p><strong>Interpretation</strong> KS is a descriptive distance. These rules do not compute significance or establish the cause of a change.</p></div></article></div>
+      <p class="footnote" id="drift-provenance"></p>
+    </section>
+    <section id="adopt" class="view" hidden aria-labelledby="adopt-title">
+      <div class="section-heading"><div><p class="eyebrow">FROM THE PUBLIC DEMO TO YOUR WORKLOAD</p><h2 id="adopt-title">Make the next evaluation yours.</h2><p class="muted">The repository includes the full live monitor, rubric workbench, paired dataset runner, audit scripts, and this public demo.</p></div></div>
+      <div class="adopt-grid"><article class="panel"><div class="panel-heading"><h3>1. Start the live lab</h3><span class="code-tag">Python 3.12</span></div><div class="panel-body"><pre><code>git clone https://github.com/shyamsridhar123/JudgeJev.git
+cd JudgeJev
+python -m venv .venv
+# Activate .venv for your shell, then:
+python -m pip install -r requirements.txt
+# Copy .env.example to .env and add your key.
+python serve.py</code></pre><p>Open <code>http://127.0.0.1:8780/lab</code>. A TypeSafe key is enough to evaluate a fixed answer. Configure your own Responses-compatible generator to create fresh answers and run paired experiments.</p><a href="https://github.com/shyamsridhar123/JudgeJev#run-the-live-lab" class="primary button" target="_blank" rel="noopener">Full setup instructions ↗</a></div></article><article class="panel"><div class="panel-heading"><h3>2. Understand the boundaries</h3></div><div class="panel-body boundary-list"><p><span class="step">A</span><span><strong>Your generator</strong>Produces the answer from the selected policy. Bring your endpoint and model ID.</span></p><p><span class="step">B</span><span><strong>Jev through TypeSafe</strong>Receives the selected evidence and typed questions; returns structured judgments.</span></p><p><span class="step">C</span><span><strong>Native DeepEval JevEval</strong>Normalizes values, applies weights, handles applicability, and returns a metric verdict.</span></p><p><span class="step">D</span><span><strong>The application</strong>Stores traces locally, streams completed results, applies release rules, and measures drift.</span></p></div></article></div>
+      <div class="concept-grid"><article class="panel panel-body"><h3>Data you control</h3><p>The local app sends generation inputs to your chosen provider and selected evaluation fields to TypeSafe. Journals and keys are excluded from Git. Optional DeepEval telemetry is disabled.</p><a href="https://github.com/shyamsridhar123/JudgeJev/blob/main/docs/ENTERPRISE.md" target="_blank" rel="noopener">Enterprise adoption guide ↗</a></article><article class="panel panel-body"><h3>Proof you can rerun</h3><p>Audit the saved evidence without any API key. Tests check native semantics, missing data, gate boundaries, and corrupted evidence. Fresh judge results can vary.</p><pre><code>python scripts/verify_demo.py
+python -m pytest -q
+node --test tests/demo.test.mjs</code></pre></article><article class="panel panel-body"><h3>A team walkthrough</h3><p>Start with a false guarantee. Explain the primitives, trigger a regression gate, and scrub a drift alert. Finish by running a fresh local case.</p><a href="https://github.com/shyamsridhar123/JudgeJev/blob/main/docs/DEMO-SCRIPT.md" target="_blank" rel="noopener">Presenter script ↗</a><br><a href="https://deepeval.com/docs/metrics-jev-eval" target="_blank" rel="noopener">Native JevEval documentation ↗</a></article></div>
+      <div class="callout">The live app binds to loopback. Enterprise hosting needs your organization’s authentication, authorization, secret management, and approved provider/data policies. This repository is an exploration lab.</div>
+    </section>
+    <footer><a class="footer-brand" href="#workbench">JudgeJev</a><span>DeepEval 4.2.6 · TypeSafe SDK 0.7.1 · Jev 1.13.0</span><a href="https://github.com/shyamsridhar123/JudgeJev" target="_blank" rel="noopener">MIT licensed · Built to inspect ↗</a></footer>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript><p class="callout">Enable JavaScript for the interactive demo. The source and recorded evidence remain available on GitHub.</p></noscript>
+</body>
+</html>

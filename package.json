@@ -1,0 +1,12 @@
+{
+  "name": "judgejev",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/demo.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
