@@ -136,14 +136,14 @@ function renderDrift() {
   const polyline = points.map(p => `${x(p.index)},${y(p.currentMean)}`).join(' ');
   const line = (value, color, dash = '') => `<line x1="${left}" y1="${y(value)}" x2="${right}" y2="${y(value)}" stroke="${color}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
   $('drift-chart').innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Rolling Jev quality through ${cutoff} playback events. Current quality ${pct(d.currentMean)}. Quality signal ${labels[d.qualityStatus]}.">
-    <rect x="${left}" y="${top}" width="${(right-left)/2}" height="${bottom-top}" fill="${mix ? '#f7f4e9' : '#fff8f4'}"/><rect x="${x(5)}" y="${top}" width="${(right-left)/2}" height="${bottom-top}" fill="${mix ? '#f7f4e9' : '#f1f8f4'}"/>
-    <text x="${left+12}" y="24" fill="#81685b" font-size="11" font-family="Instrument, sans-serif">${mix ? 'RETURNS + BILLING RECORDS REUSED' : 'OUTDATED-POLICY RECORDS'}</text>${mix ? '' : `<text x="${x(5)+12}" y="24" fill="#5e7e6b" font-size="11" font-family="Instrument, sans-serif">REFERENCE RECORDS REUSED AS RECOVERY</text>`}
-    ${[0,.25,.5,.75,1].map(v => `${line(v,'#dfe7e1')}<text x="${left-12}" y="${y(v)+4}" fill="#768b80" text-anchor="end" font-size="10" font-family="monospace">${v*100}%</text>`).join('')}
-    ${line(d.referenceMean, '#8da194', '6 5')}${line(d.referenceMean-.15, '#c77665', '4 5')}
-    ${points.length > 1 ? `<polyline points="${polyline}" fill="none" stroke="#087b67" stroke-width="2.5" stroke-linejoin="round"/>` : ''}
-    ${points.map(p => `<circle cx="${x(p.index)}" cy="${y(p.currentMean)}" r="${p.index===cutoff?5:3}" fill="${p.qualityStatus==='warming'?'#a1b7ac':'#087b67'}"/>`).join('')}
-    ${Array.from({length:11},(_,i)=>`<text x="${x(i)}" y="${bottom+23}" fill="#768b80" text-anchor="middle" font-size="10" font-family="monospace">${i}</text>`).join('')}
-    <text x="${right}" y="${height-6}" fill="#768b80" text-anchor="end" font-size="10" font-family="Instrument, sans-serif">Playback event · constructed order</text></svg>`;
+    <rect x="${left}" y="${top}" width="${(right-left)/2}" height="${bottom-top}" fill="${mix ? 'var(--amber-soft)' : 'var(--red-soft)'}"/><rect x="${x(5)}" y="${top}" width="${(right-left)/2}" height="${bottom-top}" fill="${mix ? 'var(--amber-soft)' : 'var(--teal-soft)'}"/>
+    <text x="${left+12}" y="24" fill="var(--muted)" font-size="11" font-family="Instrument, sans-serif">${mix ? 'RETURNS + BILLING RECORDS REUSED' : 'OUTDATED-POLICY RECORDS'}</text>${mix ? '' : `<text x="${x(5)+12}" y="24" fill="var(--muted)" font-size="11" font-family="Instrument, sans-serif">REFERENCE RECORDS REUSED AS RECOVERY</text>`}
+    ${[0,.25,.5,.75,1].map(v => `${line(v,'var(--line)')}<text x="${left-12}" y="${y(v)+4}" fill="var(--muted)" text-anchor="end" font-size="10" font-family="monospace">${v*100}%</text>`).join('')}
+    ${line(d.referenceMean, 'var(--chart-reference)', '6 5')}${line(d.referenceMean-.15, 'var(--red)', '4 5')}
+    ${points.length > 1 ? `<polyline points="${polyline}" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linejoin="round"/>` : ''}
+    ${points.map(p => `<circle cx="${x(p.index)}" cy="${y(p.currentMean)}" r="${p.index===cutoff?5:3}" fill="${p.qualityStatus==='warming'?'var(--chart-warmup)':'var(--teal)'}"/>`).join('')}
+    ${Array.from({length:11},(_,i)=>`<text x="${x(i)}" y="${bottom+23}" fill="var(--muted)" text-anchor="middle" font-size="10" font-family="monospace">${i}</text>`).join('')}
+    <text x="${right}" y="${height-6}" fill="var(--muted)" text-anchor="end" font-size="10" font-family="Instrument, sans-serif">Playback event · constructed order</text></svg>`;
   const firstAlert = Array.from({length:cutoff},(_,i)=>i+1).find(index => drift(reference,events,{cutoff:index,window}).qualityStatus === 'alert');
   $('drift-caption').textContent = `Frozen reference: 5 actual records. ${firstAlert ? `First quality alert at event ${firstAlert}.` : 'No quality alert has fired at this position.'} Before the window fills, the partial mean is descriptive only.`;
   $('window-members').innerHTML = d.current.length ? d.current.map(r => `<div class="member"><a href="#workbench" data-inspect="${escape(r.id)}">${escape(r.title)}</a><span>${pct(r.quality)}</span>${badge(r.passed ? 'pass' : 'fail')}</div>`).join('') : '<p class="muted small">Press Play sequence or move the timeline. Each event points to an inspectable saved Jev call.</p>';

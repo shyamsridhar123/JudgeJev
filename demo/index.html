@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A hands-on learning lab for DeepEval + Jev. Experiment with recorded judgments, typed metrics, release gates, and drift; run fresh evaluations with your own providers.">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>JudgeJev — inspect every judgment</title>
   <link rel="icon" href="mark.svg" type="image/svg+xml">
+  <script src="theme.js"></script>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" type="module"></script>
 </head>
@@ -16,7 +17,11 @@
   <a class="skip" href="#main">Skip to the lab</a>
   <header class="masthead">
     <a class="brand" href="#workbench" aria-label="JudgeJev home"><span class="brand-mark" aria-hidden="true">J<span>J</span></span><strong>JudgeJev</strong><span class="brand-sub">OPEN EVALUATION LAB</span></a>
-    <div class="masthead-links"><span class="recorded-label"><span></span>Recorded evidence</span><a class="repo-link" href="https://github.com/shyamsridhar123/JudgeJev" target="_blank" rel="noopener">Source on GitHub ↗</a></div>
+    <div class="masthead-links">
+      <span class="recorded-label"><span></span>Recorded evidence</span>
+      <a class="repo-link" href="https://github.com/shyamsridhar123/JudgeJev" target="_blank" rel="noopener">Source on GitHub ↗</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Switch to dark mode" hidden><span class="theme-switch" aria-hidden="true"></span>Dark mode</button>
+    </div>
   </header>
   <main id="main">
     <section class="intro">
