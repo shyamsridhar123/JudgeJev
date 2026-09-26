@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#171b20"/><path d="M4 18h5l3-11 6 17 3-10h6" fill="none" stroke="#b7ed86" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>JudgeJev judicial badge</title>
+  <rect width="64" height="64" rx="14" fill="#151617"/>
+  <path d="M12 10h40v25c0 10-9 18-20 23-11-5-20-13-20-23Z" fill="#d5ae62"/>
+  <path d="M16 14h32v21c0 8-7 14-16 19-9-5-16-11-16-19Z" fill="#151617"/>
+  <path d="M16 14h32v7H16Z" fill="#ba3434"/>
+  <path d="M20 27h10v12c0 5-3 8-8 8h-3v-6h3c2 0 2-1 2-3v-6h-4Zm14 0h10v12c0 5-3 8-8 8h-3v-6h3c2 0 2-1 2-3v-6h-4Z" fill="#f6efda"/>
+</svg>
